@@ -140,7 +140,7 @@ func TestAnomalyDetection(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := p.Save(18*vg.Inch, 9*vg.Inch, "spam_filtering_bayes_test.png"); err != nil {
+	if err := p.Save(18*vg.Inch, 9*vg.Inch, "anomaly_detecion_test.png"); err != nil {
 		t.Fatal(err)
 	}
 }
