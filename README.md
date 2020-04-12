@@ -29,3 +29,16 @@ Bellow you can see how probability of reaching different degrees of consensus (y
 Figure: Probability of reaching consensus of certain degrees, when number of independent decisions per tasks increases
 
 To understand how this is implemented please take a look at example [example/aws_mechanical_turk_probability_of_consensus_monte_carlo_test.go](example/aws_mechanical_turk_probability_of_consensus_monte_carlo_test.go)
+
+### Binomial distribution
+To understand how this is implemented please take a look at example [example/binomial_distribution_test.go](example/binomial_distribution_test.go)
+![Binomial distribution](./example/binomial_distribution_test.png)
+
+### Birthday Paradox and what is probability of collision?
+To understand how this is implemented please take a look at example [example/birthday_problem_calo_test.go](example/birthday_problem_calo_test.go)
+![Birthday Paradox and what is probability of collision?](./example/birthday_problem_calo_test.png)
+
+### Simulation and naive anomaly detection
+To understand how this is implemented please take a look at example [example/anomaly_detection_test.go](example/anomaly_detection_test.go)
+![Simulation and naive anomaly detection](./example/anomaly_detecion_test.png)
+
