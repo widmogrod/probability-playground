@@ -40,5 +40,5 @@ To understand how this is implemented please take a look at example [example/bir
 
 ### Simulation and naive anomaly detection
 To understand how this is implemented please take a look at example [example/anomaly_detection_test.go](example/anomaly_detection_test.go)
-![Simulation and naive anomaly detection](./example/anomaly_detecion_test.png)
+![Simulation and naive anomaly detection](./example/anomaly_detection_test.png)
 
