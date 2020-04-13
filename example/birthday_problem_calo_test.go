@@ -46,20 +46,19 @@ func birthdayProblemMonteCarlo(samples, n, k int) float64 {
 	return success / float64(samples)
 }
 
-// Theoretical probability calculated from reasoning that
-// Given group of k-people.
-// Probability of at least two people having birthday in the same date
-// can be solved as complement probability, where none of the people in group share birthday.
+// Theoretical probability calculated following complement rule.
+// Given group of k-people probability of at least two people sharing birthday
+// in the same as probability of non of k-people sharing birthday, subtracted from one.
 //
 // This can be calculated iteratively as:
-// p(k)_unique = 365/365 * 354/356 * 363/365 * ... (365-k)/365
-// p(k)_collision = 1 - p(k)_unique
+// P(k)_unique = 365/365 * 354/356 * 363/365 * ... (365-k)/365
+// P(k)_collision = 1 - P(k)_unique
 //
 // Because of multiplying many small numbers,
-// there is high chance of float underflow
-// that's why multiplication is used.
+// there is high chance of underflow that's why logarithm are used
+// to change multiplication into addition
 func birthdayProblemTheoretical(n, k int64) float64 {
-	// res holds value of p(k)_unique
+	// res - holds value of p(k)_unique
 	res := .0
 	for i := 1; i < int(k); i++ {
 		// We're dealing with logarithms
@@ -69,17 +68,37 @@ func birthdayProblemTheoretical(n, k int64) float64 {
 		res += r
 	}
 
-	// Now `res` stores value of log(multiplication)
-	// To retrieve back multiplication value, use logarithm definition:
+	// Let's refresh logarithm definition:
 	//		log_b(a) = c    <==>   a = b^c
 	//
-	//  In our case we use natural logarithm which base is `e`
+	// We have computed value `c`, that is stored in `res` variable,
+	// To compute it we use natiral logarithm function which base `b` is `e`
+	// to retrieve value `a` from logarithm, we need rise `b` to power of `c`.
+	// In our case that's simply invocation of a function math.Exp()
+	//
+	// Rest of computation is calculation of complement.
 	return 1 - math.Exp(res)
 }
 
-// https://www.johndcook.com/blog/2016/01/30/general-birthday-problem/
+// There is alternative way to compute theoretical value of probability of collision
+// It's writen concisely in [John D. Cook blog post](https://www.johndcook.com/blog/2016/01/30/general-birthday-problem/)
+// which I recommend you to read.
+//
+// Alternative method translate mathematical equation one-to-one
+// with addition of mathematical brilliance to overcome floating point underflow :)
+//
+// Solution to birthday problem can be written as:
+//
+// 		P(k) = 1-(n!/(n-k)!/n^k)			[E1]
+//
+// You can see a lot of factorials, for even for "small numbers" like 365,
+// factorial of this number is huge and when this number used to divide by another big number
+// there is chance of underflow occurring, to solve this we can use use logarithms.
+//
+// Golang has function Lgamma, that calculates logarithm value of gamma function.
+// Gamma function is defined as Γ=(n-1)! which is exactly like factorial but minus one.
+// We use this function in calculation bellow to compute equation [E1] using log gamma.
 func birthdayProblemTheoretical2(n, k float64) float64 {
-	// 	// p(k) = 1-(n!/(n-k)!/n^k)
 	res, _ := math.Lgamma(n + 1)
 	res2, _ := math.Lgamma(n - k + 1)
 	res -= res2
