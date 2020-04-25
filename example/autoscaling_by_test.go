@@ -2,6 +2,7 @@ package example
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/widmogrod/probability-playground/internal/gonumutil"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/plotutil"
@@ -12,9 +13,6 @@ import (
 
 // percent is a value between 0 and 100
 type percent = float64
-
-// num is value grater than or equal 0
-type num = float64
 
 type Range struct {
 	Min percent
@@ -173,6 +171,14 @@ func TestAutoScalingVisualize(t *testing.T) {
 		panic(err)
 	}
 
+	pCPU.Title.Text = "Average CPU utilization in percentage"
+	pCPU.X.Tick.Marker = gonumutil.NewConstantNumTicker(1)
+	pCPU.Y.Tick.Marker = gonumutil.NewConstantNumTicker(5)
+
+	pInst.Title.Text = "Relative change of instances by AutoScaling"
+	pInst.X.Tick.Marker = gonumutil.NewConstantNumTicker(1)
+	pInst.Y.Tick.Marker = gonumutil.NewConstantNumTicker(1)
+
 	ctx := Context{
 		CPUNoopRange: Range{
 			Min: 80,
@@ -253,11 +259,11 @@ func TestAutoScalingVisualize(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := pCPU.Save(18*vg.Inch, 9*vg.Inch, "autoscaling_by_test_cpu.png"); err != nil {
+	if err := pCPU.Save(9*vg.Inch, 4*vg.Inch, "autoscaling_by_test_cpu.png"); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := pInst.Save(18*vg.Inch, 9*vg.Inch, "autoscaling_by_test_inst.png"); err != nil {
+	if err := pInst.Save(9*vg.Inch, 4*vg.Inch, "autoscaling_by_test_inst.png"); err != nil {
 		t.Fatal(err)
 	}
 }
