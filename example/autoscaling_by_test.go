@@ -12,12 +12,12 @@ type percent = float64
 // num is value grater than or equal 0
 type num = float64
 
-type InRange struct {
+type Range struct {
 	Min percent
 	Max percent
 }
 
-func (ir InRange) Contains(v percent) bool {
+func (ir Range) Contains(v percent) bool {
 	if ir.Min > v || ir.Max < v {
 		return false
 	}
@@ -26,34 +26,45 @@ func (ir InRange) Contains(v percent) bool {
 }
 
 type Context struct {
-	CPUInRange      InRange
+	// CPUNoopRange defines boundaries in which CPU should not trigger auto-scaling
+	CPUNoopRange Range
+	// MaintainsCPUAvg level of CPU utilisation that should be maintained when decision about scaling up or down in made
 	MaintainsCPUAvg percent
-	CPUUtilisation  percent
-	Instances       num
+	// CPUUtilisation represents current CPU utilisation.
+	CPUUtilisation percent
+	// Instances represents current number of instances of a service.
+	Instances num
 }
 
 // CPUScale calculates how many instances should added or removed to maintain given CPU utilization
-func CPUScale(in Context) float64 {
-	if in.CPUUtilisation <= in.CPUInRange.Max && in.CPUUtilisation >= in.CPUInRange.Min {
+func CPUScale(in Context) int {
+	if in.CPUNoopRange.Contains(in.CPUUtilisation) {
 		return 0
 	}
 
-	candidate := in.Instances * in.CPUUtilisation / in.MaintainsCPUAvg
-	candidate = math.Ceil(candidate - in.Instances)
-	return candidate
+	return ScaleInstances(in.Instances, in.CPUUtilisation, in.MaintainsCPUAvg)
+}
+
+// ScaleInstances calculates how many instances should be added or removed
+// to maintain given percentage of utilization of resource with respect to current utilization.
+// Utilisation is abstract, and it can be applied to average CPU utilisation, average queue size,...
+func ScaleInstances(instances, utilisation, maintain percent) int {
+	candidate := instances * utilisation / maintain
+	candidate = math.Ceil(candidate - instances)
+	return int(candidate)
 }
 
 type Recommendation struct {
-	ScaleUp   num
-	ScaleDown num
+	ScaleUp   uint
+	ScaleDown uint
 }
 
-func toRecommendation(candidate float64) Recommendation {
+func toRecommendation(candidate int) Recommendation {
 	result := Recommendation{}
 	if candidate < 0 {
-		result.ScaleDown = -candidate
+		result.ScaleDown = uint(-candidate)
 	} else if candidate > 0 {
-		result.ScaleUp = candidate
+		result.ScaleUp = uint(candidate)
 	}
 
 	return result
@@ -66,7 +77,7 @@ func TestAutoScalingBy(t *testing.T) {
 	}{
 		"maintain": {
 			ctx: Context{
-				CPUInRange: InRange{
+				CPUNoopRange: Range{
 					Min: 80,
 					Max: 90,
 				},
@@ -81,7 +92,7 @@ func TestAutoScalingBy(t *testing.T) {
 		},
 		"CPUScale up - small": {
 			ctx: Context{
-				CPUInRange: InRange{
+				CPUNoopRange: Range{
 					Min: 80,
 					Max: 90,
 				},
@@ -96,7 +107,7 @@ func TestAutoScalingBy(t *testing.T) {
 		},
 		"CPUScale up - big": {
 			ctx: Context{
-				CPUInRange: InRange{
+				CPUNoopRange: Range{
 					Min: 80,
 					Max: 90,
 				},
@@ -111,7 +122,7 @@ func TestAutoScalingBy(t *testing.T) {
 		},
 		"CPUScale down - small": {
 			ctx: Context{
-				CPUInRange: InRange{
+				CPUNoopRange: Range{
 					Min: 80,
 					Max: 90,
 				},
@@ -126,7 +137,7 @@ func TestAutoScalingBy(t *testing.T) {
 		},
 		"CPUScale down - big": {
 			ctx: Context{
-				CPUInRange: InRange{
+				CPUNoopRange: Range{
 					Min: 80,
 					Max: 90,
 				},
