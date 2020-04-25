@@ -175,7 +175,7 @@ func TestAutoScalingVisualize(t *testing.T) {
 	pCPU.X.Tick.Marker = gonumutil.NewConstantNumTicker(1)
 	pCPU.Y.Tick.Marker = gonumutil.NewConstantNumTicker(5)
 
-	pInst.Title.Text = "Relative change of instances by AutoScaling"
+	pInst.Title.Text = "Auto Scaling decision to change number of instances with respect to average CPU utilisation "
 	pInst.X.Tick.Marker = gonumutil.NewConstantNumTicker(1)
 	pInst.Y.Tick.Marker = gonumutil.NewConstantNumTicker(1)
 
